@@ -17,6 +17,7 @@ type Session struct {
 	ExpiresAt    time.Time
 	UserID       string
 	IDToken      string
+	Nonce        string
 }
 
 var _ goth.Session = &Session{}

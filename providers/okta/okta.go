@@ -71,7 +71,8 @@ func (p *Provider) Debug(debug bool) {}
 // BeginAuth asks okta for an authentication end-point.
 func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 	return &Session{
-		AuthURL: p.config.AuthCodeURL(state, oauth2.SetAuthURLParam("nonce", "")),
+		Nonce: state,
+		AuthURL: p.config.AuthCodeURL(state, oauth2.SetAuthURLParam("nonce", state)),
 	}, nil
 }
 
@@ -79,12 +80,13 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	sess := session.(*Session)
 	user := goth.User{
-		AccessToken:  sess.AccessToken,
-		Provider:     p.Name(),
-		RefreshToken: sess.RefreshToken,
-		ExpiresAt:    sess.ExpiresAt,
-		UserID:       sess.UserID,
-		IDToken:      sess.IDToken,
+		AccessToken:          sess.AccessToken,
+		AccessTokenSecret:    sess.Nonce,
+		Provider:             p.Name(),
+		RefreshToken:         sess.RefreshToken,
+		ExpiresAt:            sess.ExpiresAt,
+		UserID:               sess.UserID,
+		IDToken:              sess.IDToken,
 	}
 
 	if user.AccessToken == "" {
